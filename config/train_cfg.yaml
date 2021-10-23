@@ -1,0 +1,30 @@
+# Please don't change any parameters
+
+weights: 'pretrains/pretrain.pt' # path to pretrained model weight
+model_cfg: 'models/yolov5s.yaml' # path to model config
+data_cfg: 'config/data_cfg.yaml' # path to data config
+hyp: 'config/hyps/hyp_finetune.yaml' # path to hyper parameters config
+project: 'results/train'
+artifact_alias: 'latest'
+epochs: 100
+img_size: 640
+rect: False
+resume: False
+nosave: False
+noval: False
+noautoanchor: False
+evolve: False
+bucket: ''
+image_weights: False
+multi_scale: False
+single_cls: False
+adam: False
+sync_bn: False
+entity: ''
+exist_ok: False
+quad: False
+label_smoothing: 0.0
+linear_lr: False
+bbox_interval: -1
+save_period: -1
+patience: 100

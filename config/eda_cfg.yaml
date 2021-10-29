@@ -1,0 +1,16 @@
+train: ../dataset-datacomp/dataset/images/train  # relative path to train images
+train_annotation: ../dataset-datacomp/dataset/labels/train
+train_annotation_csv: ../dataset-datacomp/dataset/labels/train.csv
+val: ../dataset-datacomp/dataset/images/val  # relative path to val images
+val_annotation: ../dataset-datacomp/dataset/labels/val
+val_annotation_csv: ../dataset-datacomp/dataset/labels/val.csv
+test: ../dataset-datacomp/dataset/images/public_test  # relative path to public test images
+test_annotation: ../dataset-datacomp/dataset/labels/public_test
+test_annotation_csv: ../dataset-datacomp/dataset/labels/test.csv
+
+# Classes
+# Please don't change
+num_class: 3  # number of classes
+# names: ['0', '1', '2']
+names: ['no_mask', 'mask', 'incorrect_mask']
+colors: [[255, 0, 0], [0, 0, 255], [255, 255, 0]]

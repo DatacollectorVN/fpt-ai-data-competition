@@ -1,2 +1,3 @@
 dataset-datacomp/
 */*.ipynb
+**/__pycache__

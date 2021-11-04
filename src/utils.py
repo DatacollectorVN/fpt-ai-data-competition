@@ -83,14 +83,15 @@ def mode_index(df, img_ids, start, stop, params, dataset_mode_lst):
                img = cv2.imread(os.path.join(params["test"], img_id))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             df_img_id = df[df["img_file"] == img_id]
-            classes_id = df_img_id["class_id"].values.tolist()
+            classes_id = df_img_id["class_id"].values.astype(int).tolist()
             classes_id_unique = np.unique(np.array(classes_id))
             bboxes = df_img_id[["x_min", "y_min", "x_max", "y_max"]].values.tolist()
             st.write(f"**Image**: {img_id}")
             st.write(f"**Index**: {i + start}")
             st.write(f"**All bboxes**: {len(classes_id)}")
             st.write(f"**Number of unique classes**: {len(classes_id_unique)}")
-            img = draw_bbox(img, bboxes, [params["names"][i] for i in classes_id], params["names"], params["colors"], 2)
+            if -1e5 < classes_id[0] < 1e5 : # advoid the cases without annotations
+                img = draw_bbox(img, bboxes, [params["names"][i] for i in classes_id], params["names"], params["colors"], 2)
             st.image(img)
 
 def mode_file_name(df, img_file_name, params, dataset_mode_lst):
@@ -108,5 +109,6 @@ def mode_file_name(df, img_file_name, params, dataset_mode_lst):
     st.write(f"**Image**: {img_file_name}")
     st.write(f"**All bboxes**: {len(classes_id)}")
     st.write(f"**Number of unique classes**: {len(classes_id_unique)}")
-    img = draw_bbox(img, bboxes, [params["names"][i] for i in classes_id], params["names"], params["colors"], 2)
+    if -1e5 < classes_id[0] < 1e5 : # advoid the cases without annotations
+        img = draw_bbox(img, bboxes, [params["names"][i] for i in classes_id], params["names"], params["colors"], 2)
     st.image(img)

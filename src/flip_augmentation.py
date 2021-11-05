@@ -2,7 +2,6 @@ import random
 import cv2
 import os
 import glob
-import numpy as np
 
 # Params
 LABEL_DIR = '../data/labels/train'
@@ -16,6 +15,8 @@ def main():
     new_image, new_annos, path = update_image_and_anno(
         img_paths, annos, FLIP_TYPE)
 
+    os.mkdir('../imgs_augment/flip/images')
+    os.mkdir('../imgs_augment/flip/labels')
     for index in range(len(new_image)):
         # Get random string code: '7b7ad245cdff75241935e4dd860f3bad'
         letter_code = random_chars(32)

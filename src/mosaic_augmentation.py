@@ -17,6 +17,8 @@ NUMBER_IMAGES = 200
 
 def main():
     img_paths, annos = get_dataset(LABEL_DIR, IMG_DIR)
+    os.mkdir('../imgs_augment/mosaic/images')
+    os.mkdir('../imgs_augment/mosaic/labels')
     for index in range(NUMBER_IMAGES):
         idxs = random.sample(range(len(annos)), 4)
         new_image, new_annos, path = update_image_and_anno(img_paths, annos,
@@ -41,36 +43,6 @@ def main():
             annos_list.append(obj)
         with open("../imgs_augment/mosaic/labels/{}_MOSAIC_{}.txt".format(file_name, letter_code), "w") as outfile:
             outfile.write("\n".join(line for line in annos_list))
-
-
-# def main():
-#     img_paths, annos = get_dataset(LABEL_DIR, IMG_DIR)
-#     print('Processing...')
-#     for index in range(NUMBER_IMAGES):
-#         idxs = random.sample(range(len(annos)), 4)
-#         new_image, new_annos, path = update_image_and_anno(img_paths, annos,
-#                                                            idxs,
-#                                                            OUTPUT_SIZE, SCALE_RANGE,
-#                                                            filter_scale=FILTER_TINY_SCALE)
-
-#         # Get random string code: '7b7ad245cdff75241935e4dd860f3bad'
-#         # letter_code = random_chars(32)
-#         file_name, letter_code = path.split(
-#             '/')[-1].rsplit('.', 1)[0].split('_HISTOGRAM_')
-#         cv2.imwrite("imgs_augment/mosaic/images/{}_MOSAIC_{}.jpg".format(file_name,
-#                     letter_code), new_image, [cv2.IMWRITE_JPEG_QUALITY, 85])
-#         print('Successed {}/{} with {}'.format(index+1, NUMBER_IMAGES, file_name))
-#         annos_list = []
-#         for anno in new_annos:
-#             width = anno[3] - anno[1]
-#             height = anno[4] - anno[2]
-#             x_center = anno[1] + width/2
-#             y_center = anno[2] + height/2
-#             obj = '{} {} {} {} {}'.format(
-#                 anno[0], x_center, y_center, width, height)
-#             annos_list.append(obj)
-#         with open("imgs_augment/mosaic/labels/{}_MOSAIC_{}.txt".format(file_name, letter_code), "w") as outfile:
-#             outfile.write("\n".join(line for line in annos_list))
 
 
 def get_dataset(label_dir, img_dir):

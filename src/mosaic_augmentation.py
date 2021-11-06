@@ -5,20 +5,27 @@ import cv2
 import os
 import glob
 import numpy as np
+import shutil
 
 # Parrameters
 OUTPUT_SIZE = (720, 1280)  # Height, Width
 SCALE_RANGE = (0.4, 0.6)  # if height or width lower than this scale, drop it.
 FILTER_TINY_SCALE = 1 / 100
-LABEL_DIR = '../data/labels/train'
-IMG_DIR = '../data/images/train'
-NUMBER_IMAGES = 200
+LABEL_DIR = '../samples/labels'
+IMG_DIR = '../samples/images'
+NUMBER_IMAGES = 10
 
 
 def main():
+    # Create folder output
+    if os.path.exists('../imgs_augment/mosaic/images'):
+        shutil.rmtree('../imgs_augment/mosaic/images')
+    os.makedirs('../imgs_augment/mosaic/images')
+    if os.path.exists('../imgs_augment/mosaic/labels'):
+        shutil.rmtree('../imgs_augment/mosaic/labels')
+    os.makedirs('../imgs_augment/mosaic/labels')
+
     img_paths, annos = get_dataset(LABEL_DIR, IMG_DIR)
-    os.mkdir('../imgs_augment/mosaic/images')
-    os.mkdir('../imgs_augment/mosaic/labels')
     for index in range(NUMBER_IMAGES):
         idxs = random.sample(range(len(annos)), 4)
         new_image, new_annos, path = update_image_and_anno(img_paths, annos,

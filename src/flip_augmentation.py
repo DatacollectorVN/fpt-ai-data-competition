@@ -2,21 +2,28 @@ import random
 import cv2
 import os
 import glob
+import shutil
 
 # Params
-LABEL_DIR = '../data/labels/train'
-IMAGE_DIR = '../data/images/train'
+LABEL_DIR = '../samples/labels'
+IMAGE_DIR = '../samples/images'
 FLIP_TYPE = 1  # (0 is vertical, 1 is horizontal)
 
 
 def main():
+    # Create folder output
+    if os.path.exists('../imgs_augment/flip/images'):
+        shutil.rmtree('../imgs_augment/flip/images')
+    os.makedirs('../imgs_augment/flip/images')
+    if os.path.exists('../imgs_augment/flip/labels'):
+        shutil.rmtree('../imgs_augment/flip/labels')
+    os.makedirs('../imgs_augment/flip/labels')
+
     img_paths, annos = get_dataset(LABEL_DIR, IMAGE_DIR)
     print('Processing...')
     new_image, new_annos, path = update_image_and_anno(
         img_paths, annos, FLIP_TYPE)
 
-    os.mkdir('../imgs_augment/flip/images')
-    os.mkdir('../imgs_augment/flip/labels')
     for index in range(len(new_image)):
         # Get random string code: '7b7ad245cdff75241935e4dd860f3bad'
         letter_code = random_chars(32)

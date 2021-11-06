@@ -40,13 +40,15 @@ python flip_augmentation.py
 **NOTE**: Change path of dataset and number images to generate
 
 ## 5. Baseline: [Update soon]
-** Val
-![Baselineval](https://github.com/DatacollectorVN/fpt-ai-data-competition/tree/vnk/images/baselineval.jpg)
+** Val:
 
-** Public_test
-![Baselinetest](https://github.com/DatacollectorVN/fpt-ai-data-competition/tree/vnk/images/baselinetest.jpg)
+![Baselineval](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselineval.jpg)
 
-Detail [DRIVE-CHUNG](https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1): https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1 
+** Public_test:
+
+![Baselinetest](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselinetest.jpg)
+
+**For more details [DRIVE-CHUNG](https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1)**: https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1 
 
 ## 6. Train:
 

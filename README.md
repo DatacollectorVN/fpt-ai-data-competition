@@ -26,7 +26,27 @@ pip install -r requirements.txt
 
 `bash download_data_standard_add.sh`
 
+## Data augmentation:
+* Mosaic
+```bash
+cd src
+python mosaic_augmentation.py
+```
+* Flip
+```bash
+cd src
+python flip_augmentation.py
+```
+**NOTE**: Change path of dataset and number images to generate
+
 ## 5. Baseline: [Update soon]
+** Val
+![Baselineval](https://github.com/DatacollectorVN/fpt-ai-data-competition/tree/vnk/images/baselineval.jpg)
+
+** Public_test
+![Baselinetest](https://github.com/DatacollectorVN/fpt-ai-data-competition/tree/vnk/images/baselinetest.jpg)
+
+Detail [DRIVE-CHUNG](https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1): https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1 
 
 ## 6. Train:
 

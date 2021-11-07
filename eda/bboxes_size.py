@@ -8,7 +8,6 @@ import sys
 import seaborn as sns
 import matplotlib.pyplot as plt
 sys.path.insert(1, "../src")
-from utils import rescale, convert_xywh_to_xyxy
 import argparse
 from pathlib import Path
 

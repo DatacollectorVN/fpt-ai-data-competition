@@ -21,7 +21,7 @@ def rescale(img_annot, img):
     h, w = img.shape[:2]
     scale = np.hstack([w, h, w, h]).astype(np.float32)
     bboxes = bboxes * scale
-    return classes_id, bboxes
+    return classes_id, bboxes 
 
 def convert_xywh_to_xyxy(bboxes):
     '''

@@ -84,6 +84,7 @@ if __name__ == "__main__":
     df.to_csv(params["val_annotation_csv"], index = False)
     print(f"Number of annotations in val = {df.shape[0]}")
 
+    '''
     print(f"Convert test")
     img_files_lst = []
     for i, annot_train in tqdm(enumerate(annots_test[:]), total = len(annots_test[:])):
@@ -116,3 +117,4 @@ if __name__ == "__main__":
     df["img_file"] = img_files_lst
     df.to_csv(params["test_annotation_csv"], index = False)
     print(f"Number of annotations in test = {df.shape[0]}")
+    '''

@@ -1,8 +1,10 @@
 import numpy as np
 import cv2
+import pandas as pd
 import sys
 import streamlit as st
 import os
+import matplotlib.pyplot as plt
 
 def rescale(img_annot, img):
     '''
@@ -112,3 +114,90 @@ def mode_file_name(df, img_file_name, params, dataset_mode_lst):
     if -1e5 < classes_id[0] < 1e5 : # advoid the cases without annotations
         img = draw_bbox(img, bboxes, [params["names"][i] for i in classes_id], params["names"], params["colors"], 2)
     st.image(img)
+
+def get_normalize(params, mode):
+    ''' 
+    Args: 
+        + params: (dict) Default Parameters, Loading from config yaml file.
+        + mode: (str) Dataset mode (train, val, test)    
+    '''
+    
+    # df must contain 5 columns (class_id, x_min, y_min, x_max, y_max, img_file)
+    if mode == "train":
+        df = pd.read_csv(params["train_annotation_csv"])
+    elif mode == "val":
+        df = pd.read_csv(params["val_annotation_csv"])
+    elif mode == "test":
+        df = pd.read_csv(params["test_annotation_csv"])
+    else:
+        print(f"Invalid mode")
+        return
+
+    img_ids = df["img_file"].values
+    for i, img_id in enumerate(img_ids):
+        height, width = cv2.imread(os.path.join(params[mode], img_id)).shape[:2]
+        if i == 0:
+            rows = np.array([width, height, width, height])
+        else:
+            row = np.array([width, height, width, height])
+            rows = np.vstack([rows, row])
+    
+def crop(img, img_annots):
+    classes_id, bboxes = rescale(img_annots, img)
+    bboxes = convert_xywh_to_xyxy(bboxes)
+    imgs_crop = []
+    for i, bbox in enumerate(bboxes):
+        img_content = img[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2]), :]
+        img_crop = {f"img" : img_content, "class_id" : classes_id[i], "bbox" : bbox}
+        imgs_crop.append(img_crop)
+    return imgs_crop
+
+def variance_of_laplacian(img):
+    # compute the Laplacian of the image and then return the focus
+    # measure, which is simply the variance of the Laplacian
+    return cv2.Laplacian(img, cv2.CV_64F).var()
+
+# https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html
+# https://github.com/albumentations-team/albumentations/issues/67
+def change_brightness(img, alpha, beta):
+    img_new = np.asarray(alpha*img + beta, dtype = np.uint8)   # cast pixel values to int
+    img_new[img_new>255] = 255
+    img_new[img_new<0] = 0
+    return img_new
+
+def increase_brightness(img, value=30):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
+    lim = 255 - value
+    v[v > lim] = 255
+    v[v <= lim] += value
+    final_hsv = cv2.merge((h, s, v)) 
+    return cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+
+def plot_multi_imgs(imgs, # 1 batchs contain multiple images
+                    cols = 2, size = 10, # size of figure
+                    is_rgb = True, title = None, cmap = "gray",
+                    img_size = None): # set img_size if you want (width, height)
+    rows = (len(imgs) // cols) + 1
+    fig = plt.figure(figsize = (size *  cols, size * rows))
+    for i , img in enumerate(imgs):
+        if img_size is not None:
+            img = cv2.resize(img, img_size)
+        fig.add_subplot(rows, cols, i + 1) # add subplot int the the figure
+        plt.imshow(img, cmap = cmap) # plot individual image
+    plt.suptitle(title)
+
+def bright_scorce_bbox(bbox_img):
+    # Convert color space to LAB format and extract L channel
+    L, A, B = cv2.split(cv2.cvtColor(bbox_img, cv2.COLOR_BGR2LAB))
+    # Normalize L channel by dividing all pixel values with maximum pixel value
+    L = L/255 
+    return np.mean(L)
+
+def detect_darkness(imgs_crop):
+    for img_crop in imgs_crop:
+        bright_score = bright_scorce_bbox(img_crop["img"])
+        if bright_score <= 0.3:
+            return True
+    return False
+

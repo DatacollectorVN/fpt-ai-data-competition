@@ -15,7 +15,7 @@ FILE_TRAIN_CONFIG = os.path.join("..", "config", "eda_cfg.yaml")
 with open(FILE_TRAIN_CONFIG) as file:
     params = yaml.load(file, Loader = yaml.FullLoader)
 
-def main(dataset="train"):
+def main(dataset="train", draw="boxplot"):
     if dataset == "train":
         mode = "train_annotation"
         annots = os.listdir(params[mode])
@@ -46,23 +46,37 @@ def main(dataset="train"):
                 class_id = int(img_annot[0])
                 w_norm = img_annot[3]
                 h_norm = img_annot[4]
+                ratio_norm = w_norm / h_norm
                 area_norm = w_norm * h_norm
                 w = w_norm * w
                 h = h_norm * h
+                ratio = w / h
                 area = w * h
-                rows.append([class_id, area_norm, area])
-    df = pd.DataFrame(np.array(rows), columns = ["class_id", "bbox_area_norm", "bbox_area"])
-    
-    # draw
-    sns.boxplot(data = df, x = "class_id", y = "bbox_area_norm")
-    plt.savefig(os.path.join("..", "images", "bboxes", f"bboxes_area_norm_{dataset}.png"))
+                rows.append([class_id, area_norm, area,ratio_norm, ratio])
+    df = pd.DataFrame(np.array(rows), columns = ["class_id", "bbox_area_norm", "bbox_area", "ratio_norm", "ratio"])
 
-    sns.boxplot(data = df, x = "class_id", y = "bbox_area")
-    plt.savefig(os.path.join("..", "images", "bboxes", f"bboxes_area_{dataset}.png"))
+    # draw
+    if draw == "boxplot":
+        sns.boxplot(data = df, x = "class_id", y = "bbox_area_norm")
+        plt.savefig(os.path.join("..", "images", "bboxes", f"bboxes_area_norm_{draw}_{dataset}.png"))
+
+        sns.boxplot(data = df, x = "class_id", y = "bbox_area")
+        plt.savefig(os.path.join("..", "images", "bboxes", f"bboxes_area_{draw}_{dataset}.png"))
+    elif draw == "barplot":
+        df = df.groupby(by = "class_id").mean().reset_index()
+        sns.barplot(data = df, x = "class_id", y = "bbox_area_norm")
+        plt.xlabel("Mean normalize area")
+        plt.savefig(os.path.join("..", "images", "bboxes", f"bboxes_area_norm_{draw}_{dataset}.png"))
+
+        sns.barplot(data = df, x = "class_id", y = "bbox_area")
+        plt.xlabel("Mean area")
+        plt.savefig(os.path.join("..", "images", "bboxes", f"bboxes_area_{draw}_{dataset}.png"))   
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', dest = 'dataset', 
+    parser.add_argument("--dataset", dest = "dataset", 
                         default = "train")
+    parser.add_argument("--draw", dest = "draw", 
+                        default = "boxplot")
     args = parser.parse_args() 
-    main(dataset = args.dataset)
+    main(dataset = args.dataset, draw = args.draw)

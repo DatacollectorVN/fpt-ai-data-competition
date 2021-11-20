@@ -5,6 +5,7 @@ import sys
 import streamlit as st
 import os
 import matplotlib.pyplot as plt
+import re
 
 def rescale(img_annot, img):
     '''
@@ -201,3 +202,21 @@ def detect_darkness(imgs_crop):
             return True
     return False
 
+def save_annotations(img_annotations, file_save, path):
+    pattern = re.compile(pattern =r"0.\d+")
+    if len(img_annotations.shape) ==  1:
+        img_annotations = np.expand_dims(img_annotations, axis = 0)
+    img_classes = img_annotations[:, 0].astype(np.int32)
+    with open(os.path.join(path, file_save), 'w') as output:
+        for i in range(len(img_classes)):
+            img_class = img_classes[i]
+            output.write(str(img_class) + " ")
+            img_annotation = str(img_annotations[i])
+            matches = pattern.finditer(img_annotation)
+            num_matches = len([_ for _ in pattern.finditer(img_annotation)])
+            assert num_matches == 4, f"Error with num_matche = {num_matches}"
+            for j, match in enumerate(matches):
+                if j == 3:
+                    output.write(str(match.group()) + "\n")
+                else:
+                    output.write(str(match.group()) + " ")

@@ -7,7 +7,7 @@ import argparse
 import shutil
 import sys
 sys.path.insert(1, "../src")
-from utils import crop, increase_brightness, detect_darkness
+from utils import crop, increase_brightness, detect_darkness, save_annotations
 
 def main(path_imgs, path_annotations, path_imgs_new, path_annotations_new):
     img_ids = os.listdir(path_imgs)
@@ -20,11 +20,9 @@ def main(path_imgs, path_annotations, path_imgs_new, path_annotations_new):
             img_new = increase_brightness(img, 25)
             cv2.imwrite(filename = os.path.join(path_imgs_new, Path(img_id).stem + "_bright_" + ".jpg"), 
                         img = img_new)
-            np.savetxt(os.path.join(path_annotations_new, Path(img_id).stem + "_bright_" + ".txt"), 
-                       img_annots)
+            save_annotations(img_annots, Path(img_id).stem + "_bright_" + ".txt", path_annotations_new)
         cv2.imwrite(filename = os.path.join(path_imgs_new, img_id), img = img)
-        np.savetxt(os.path.join(path_annotations_new, Path(img_id).stem + ".txt"), 
-                   img_annots)   
+        save_annotations(img_annots, Path(img_id).stem + ".txt", path_annotations_new)  
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

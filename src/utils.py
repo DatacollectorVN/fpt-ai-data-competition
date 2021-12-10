@@ -214,9 +214,57 @@ def save_annotations(img_annotations, file_save, path):
             img_annotation = str(img_annotations[i])
             matches = pattern.finditer(img_annotation)
             num_matches = len([_ for _ in pattern.finditer(img_annotation)])
-            assert num_matches == 4, f"Error with num_matche = {num_matches}"
+            assert num_matches == 4, f"Error with num_matches = {num_matches}"
             for j, match in enumerate(matches):
                 if j == 3:
                     output.write(str(match.group()) + "\n")
                 else:
                     output.write(str(match.group()) + " ")
+
+def compute_area_xyxy(bbox):
+    x_min, y_min, x_max, y_max = bbox
+    return round((x_max - x_min) * (y_max - y_min), 2)
+
+def enhence_face(img, img_annots, sigma_s_detail=15, sigma_r_detail=0.15, 
+                 flag_preserving=1, sigma_s_preserving=30, sigma_r_preserving=0.4):
+    ''' source: https://learnopencv.com/non-photorealistic-rendering-using-opencv-python-c/#edgePreservingFilter
+    Args:
+        + img (ndarray): color image. 
+        + img_annots (ndarray): contain the class_id and bboxes (xywh).
+        + sigma_s_detail and sigma_s_preserving (float): range from 0 to 200. 
+          sigma_s (for Sigma_Spatial) that determines the amount of smoothing. 
+          A typical smoothing filter replaces the value of a pixel by the weighted sum of its neighbors. 
+          The bigger the neighborhood, the smoother the filtered image looks. 
+          The size of the neighborhood is directly proportional to the parameter sigma_s.
+          sigma_s_detail is used to cv2.detailEnhance() while sigma_s_preserving is used to cv2.edgePreservingFilter().
+        + sigma_r_detail, sigma_r_preserving (float): range from 0 to 1.
+          sigma_r (for sigma_range) controls the how dissimilar colors within the neighborhood will be averaged. 
+          A larger sigma_r results in large regions of constant color.
+          sigma_r_detail is used to cv2.detailEnhance() while sigma_r_preserving is used to cv2.edgePreservingFilter().
+        + flag_preserving (int): is used to cv2.edgePreservingFilter().
+          It takes value RECURS_FILTER ( Recursive Filtering ) = 1 and NORMCONV_FILTER ( Normalized Convolution ) = 2
+
+    Return:
+        enhence_faces_lst (list): list contains all img_faces after enhence.
+    '''
+
+    img_copy = img.copy()
+    imgs_crop = crop(img_copy, img_annots)
+    enhence_faces_lst = []
+    for i in range(len(imgs_crop)):
+        detail_face = cv2.detailEnhance(imgs_crop[i]["img"], sigma_s = sigma_s_detail, sigma_r = sigma_r_detail)
+        enhence_face = cv2.edgePreservingFilter(detail_face, flags = flag_preserving, sigma_s = sigma_s_preserving, sigma_r = sigma_r_preserving)
+        enhence_face_dct = {"img" : enhence_face, 
+                            "class_id" : imgs_crop[i]["class_id"],
+                            "bbox" : imgs_crop[i]["bbox"]}
+        enhence_faces_lst.append(enhence_face_dct)
+    return enhence_faces_lst
+
+def img_enhence_face(img, enhence_faces_lst):
+    img_copy = img.copy()
+    for i in range(len(enhence_faces_lst)):
+        bbox = enhence_faces_lst[i]["bbox"].astype(int)
+        img_copy[bbox[1]:bbox[3], bbox[0]:bbox[2], :] = enhence_faces_lst[i]["img"]
+    return img_copy
+
+    

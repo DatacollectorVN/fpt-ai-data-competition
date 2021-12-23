@@ -27,19 +27,19 @@ pip install -r requirements.txt
 `bash download_data_standard_add.sh`
 
 ## Data augmentation:
-* Mosaic
+* Mosaic | Flip | Rotate | Mixup
 ```bash
-cd src
-python mosaic_augmentation.py
-```
-* Flip
-```bash
-cd src
-python flip_augmentation.py
+python src/{augmentation_name}_augmentation.py
 ```
 **NOTE**: Change path of dataset and number images to generate
 
-## 5. Baseline: [Update soon]
+* Auto augmentation based on Yolov5 source code
+```bash
+python auto_augmentation.py
+```
+**NOTE**: Remember to change config correctly
+
+## 5. Baseline:
 ** Val:
 
 ![Baselineval](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselineval.jpg)
@@ -79,3 +79,7 @@ python detect.py --weights results/train/<version_name>/weights/best.pt --source
 *Note*: 
 - <path_to_folder>: folder contain images to predict (Usually ./dataset/public_test)
 - <save_dir>: path to save images predict
+
+
+## 9. Result on leaderboard:
+![LEADERBOARD](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/leaderboard.jpg)

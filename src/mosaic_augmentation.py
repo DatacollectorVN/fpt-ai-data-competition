@@ -5,28 +5,23 @@ import cv2
 import os
 import glob
 import numpy as np
-import shutil
+from tqdm import tqdm
 
 # Parrameters
-OUTPUT_SIZE = (720, 1280)  # Height, Width
+OUTPUT_SIZE = (1280, 1280)  # Height, Width
 SCALE_RANGE = (0.4, 0.6)  # if height or width lower than this scale, drop it.
 FILTER_TINY_SCALE = 1 / 100
-LABEL_DIR = '../samples/labels'
-IMG_DIR = '../samples/images'
-NUMBER_IMAGES = 10
+LABEL_DIR = './imgs_augment/all_im_pad/labels'
+IMG_DIR = './imgs_augment/all_im_pad/images'
+# LABEL_DIR = './data/dataset/labels/train_padding'
+# IMG_DIR = './data/dataset/images/train_padding'
+NUMBER_IMAGES = 471
+TYPE_TRANSFORM = 'IM_MOSAIC'
 
 
 def main():
-    # Create folder output
-    if os.path.exists('../imgs_augment/mosaic/images'):
-        shutil.rmtree('../imgs_augment/mosaic/images')
-    os.makedirs('../imgs_augment/mosaic/images')
-    if os.path.exists('../imgs_augment/mosaic/labels'):
-        shutil.rmtree('../imgs_augment/mosaic/labels')
-    os.makedirs('../imgs_augment/mosaic/labels')
-
     img_paths, annos = get_dataset(LABEL_DIR, IMG_DIR)
-    for index in range(NUMBER_IMAGES):
+    for index in tqdm(range(NUMBER_IMAGES)):
         idxs = random.sample(range(len(annos)), 4)
         new_image, new_annos, path = update_image_and_anno(img_paths, annos,
                                                            idxs,
@@ -34,11 +29,10 @@ def main():
                                                            filter_scale=FILTER_TINY_SCALE)
 
         # Get random string code: '7b7ad245cdff75241935e4dd860f3bad'
-        letter_code = random_chars(32)
+        letter_code = random_chars(8)
         file_name = path.split('/')[-1].rsplit('.', 1)[0]
-        cv2.imwrite("../imgs_augment/mosaic/images/{}_MOSAIC_{}.jpg".format(file_name,
-                    letter_code), new_image, [cv2.IMWRITE_JPEG_QUALITY, 85])
-        print('Successed {}/{} with {}'.format(index+1, NUMBER_IMAGES, file_name))
+        cv2.imwrite("imgs_augment/mosaic/images/{}_{}_{}.jpg".format(file_name, TYPE_TRANSFORM,
+                    letter_code), new_image, [cv2.IMWRITE_JPEG_QUALITY, 80])
         annos_list = []
         for anno in new_annos:
             width = anno[3] - anno[1]
@@ -48,7 +42,7 @@ def main():
             obj = '{} {} {} {} {}'.format(
                 anno[0], x_center, y_center, width, height)
             annos_list.append(obj)
-        with open("../imgs_augment/mosaic/labels/{}_MOSAIC_{}.txt".format(file_name, letter_code), "w") as outfile:
+        with open("imgs_augment/mosaic/labels/{}_{}_{}.txt".format(file_name, TYPE_TRANSFORM, letter_code), "w") as outfile:
             outfile.write("\n".join(line for line in annos_list))
 
 

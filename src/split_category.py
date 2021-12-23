@@ -2,7 +2,7 @@ import os
 import shutil
 
 # Params
-DATASET = 'train'
+DATASET = 'public_test_padding'
 LABEL_DIR = './data/dataset/labels/'
 IMAGE_DIR = './data/dataset/images/'
 
@@ -23,13 +23,13 @@ def main():
         print('There have {} images contain category {} - type {}'.format(
             len(name_list), idx, mask_type))
 
-        os.makedirs(LABEL_DIR + mask_type + DATASET)
+        os.makedirs(LABEL_DIR + mask_type)
         for name in name_list:
             new_path = name.replace(DATASET, mask_type)
             shutil.copyfile(name, new_path)
         print('✅ DONE with {} labels'.format(mask_type))
 
-        os.makedirs(IMAGE_DIR + mask_type + DATASET)
+        os.makedirs(IMAGE_DIR + mask_type)
         for name in name_list:
             path = name.replace('labels', 'images')
             path = path.replace('txt', 'jpg')

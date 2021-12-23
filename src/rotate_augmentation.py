@@ -7,10 +7,13 @@ import numpy as np
 import cv2
 from glob import glob
 import os
+from tqdm import tqdm
 
 # Params
 angle_interval = 10
-input_path = './test'
+ratio = 80
+dirname_input_label = './imgs_augment/flip/labels'
+dirname_input_image = './imgs_augment/flip/images'
 output_path = './imgs_augment/rotate'
 
 
@@ -30,18 +33,14 @@ def xyxy2xywh(coord, height_image, width_image):
     return coord[0], x_center, y_center, width, height
 
 
-def main(angle_interval, input_path, output_path):
-    dirname_input_image = os.path.join(input_path, "images")
-    dirname_input_label = os.path.join(input_path, "labels")
+def main():
     dirname_output_image = os.path.join(output_path, "images")
     dirname_output_label = os.path.join(output_path, "labels")
 
     image_names = glob(dirname_input_image + "/*")
     print(f"Processing... with {len(image_names)} images")
     count = 1
-    for image_name0 in image_names:
-        print(
-            f"\r{count}/{len(image_names)}: {image_name0.rsplit('/')[-1]}", end='', flush=True)
+    for image_name0 in tqdm(image_names):
         count += 1
         label_name = os.path.join(dirname_input_label, os.path.splitext(
             os.path.basename(image_name0))[0]+".txt")
@@ -71,7 +70,6 @@ def main(angle_interval, input_path, output_path):
             file_label = open(label_name, "w")
             for coord in coords:
                 category, x_left0, y_top0, x_right0, y_bottom0 = coord
-
                 points0 = np.array([[x_left0, y_top0, 1.],
                                     [x_left0, y_bottom0, 1.],
                                     [x_right0, y_top0, 1.],
@@ -87,14 +85,17 @@ def main(angle_interval, input_path, output_path):
                     [y_top, y_bottom], 0, height_image0)
                 x_left, x_right = int(x_left*1.0075), int(x_right*0.9925)
                 y_top, y_bottom = int(y_top*1.0075), int(y_bottom*0.9925)
-
                 label = xyxy2xywh(
                     [category, x_left, y_top, x_right, y_bottom], height_image0, width_image0)
-                file_label.write(
-                    " ".join([str(l) for l in label]) + "\n")
-            cv2.imwrite(image_name, image)
+                min_label = min(label[1:])
+                if min_label > 0:
+                    file_label.write(
+                        " ".join([str(l) for l in label]) + "\n")
+                else:
+                    continue
+            cv2.imwrite(image_name, image, [cv2.IMWRITE_JPEG_QUALITY, 75])
 
 
 if __name__ == '__main__':
-    main(angle_interval, input_path, output_path)
+    main()
     print('\nDONE')

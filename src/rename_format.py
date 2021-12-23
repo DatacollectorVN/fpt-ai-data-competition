@@ -1,8 +1,9 @@
 import os
 
 # Params
-DATA_PATH = ''  # ./data/NO_INCORRECT_MASK.v1-nim-flipmosaic.yolov5pytorch
-TYPE_AUGMENTATION = ''  # Ex: MOSAIC
+# ./data/NO_INCORRECT_MASK.v1-nim-flipmosaic.yolov5pytorch
+DATA_PATH = './data/NO_MASK_TRAIN_SIZE.v1-nm_aug.yolov5pytorch'
+TYPE_AUGMENTATION = 'NM_AUG'  # Ex: MOSAIC
 
 
 def main():

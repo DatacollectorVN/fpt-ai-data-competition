@@ -28,11 +28,18 @@ Run to download raw dataset:
 bash download_data.sh
 ```
 
+## Check annotation:
+We use Streamlit to display and check annotations of image.
+```bash
+streamlit run eda/streamlit_annotations.py
+```
+
 ## Data pre-processing:
 * Increase brightness
 ```bash
 python eda/increase_brightness.py
 ```
+
 * Enhence face of people
 ```bash
 python eda/enhence_face.py
@@ -51,8 +58,6 @@ python src/{augmentation_name}_augmentation.py
 python auto_augmentation.py
 ```
 
-
-
 ## 5. Baseline:
 **Val**:
 
@@ -63,7 +68,6 @@ python auto_augmentation.py
 ![Baselinetest](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselinetest.jpg)
 
 **For more details [DRIVE-CHUNG](https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1)**: https://drive.google.com/drive/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1?usp=sharing
-
 
 ## 6. Train:
 

@@ -2,41 +2,35 @@ import random
 import cv2
 import os
 import glob
-import shutil
+from tqdm import tqdm
 
-# Params
-LABEL_DIR = '../samples/labels'
-IMAGE_DIR = '../samples/images'
+# # Params
+# LABEL_DIR = './imgs_augment/rotate/labels'
+# IMAGE_DIR = './imgs_augment/rotate/images'
+LABEL_DIR = './data/dataset/labels/no_mask_train_pad'
+IMAGE_DIR = './data/dataset/images/no_mask_train_pad'
 FLIP_TYPE = 1  # (0 is vertical, 1 is horizontal)
 
 
 def main():
-    # Create folder output
-    if os.path.exists('../imgs_augment/flip/images'):
-        shutil.rmtree('../imgs_augment/flip/images')
-    os.makedirs('../imgs_augment/flip/images')
-    if os.path.exists('../imgs_augment/flip/labels'):
-        shutil.rmtree('../imgs_augment/flip/labels')
-    os.makedirs('../imgs_augment/flip/labels')
-
+    print('Getting data...')
     img_paths, annos = get_dataset(LABEL_DIR, IMAGE_DIR)
     print('Processing...')
     new_image, new_annos, path = update_image_and_anno(
         img_paths, annos, FLIP_TYPE)
 
-    for index in range(len(new_image)):
+    for index in tqdm(range(len(new_image))):
         # Get random string code: '7b7ad245cdff75241935e4dd860f3bad'
-        letter_code = random_chars(32)
+        # letter_code = random_chars(32)
         file_name = path[index].split('/')[-1].rsplit('.', 1)[0]
-        cv2.imwrite("../imgs_augment/flip/images/{}_FLIPHORIZONTAL_{}.jpg".format(file_name,
-                    letter_code), new_image[index], [cv2.IMWRITE_JPEG_QUALITY, 85])
-        print('Success {}/{} with {}'.format(index+1, len(new_image), file_name))
+        cv2.imwrite("imgs_augment/flip/images/{}_FLIP.jpg".format(file_name,
+                                                                  ), new_image[index], [cv2.IMWRITE_JPEG_QUALITY, 80])
         annos_list = []
         for anno in new_annos[index]:
             obj = '{} {} {} {} {}'.format(
                 anno[0], anno[1], anno[2], anno[3], anno[4])
             annos_list.append(obj)
-        with open("../imgs_augment/flip/labels/{}_FLIPHORIZONTAL_{}.txt".format(file_name, letter_code), "w") as outfile:
+        with open("imgs_augment/flip/labels/{}_FLIP.txt".format(file_name), "w") as outfile:
             outfile.write("\n".join(line for line in annos_list))
 
 

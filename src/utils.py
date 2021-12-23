@@ -1,8 +1,11 @@
 import numpy as np
 import cv2
+import pandas as pd
 import sys
 import streamlit as st
 import os
+import matplotlib.pyplot as plt
+import re
 
 def rescale(img_annot, img):
     '''
@@ -21,7 +24,7 @@ def rescale(img_annot, img):
     h, w = img.shape[:2]
     scale = np.hstack([w, h, w, h]).astype(np.float32)
     bboxes = bboxes * scale
-    return classes_id, bboxes
+    return classes_id, bboxes 
 
 def convert_xywh_to_xyxy(bboxes):
     '''
@@ -83,14 +86,15 @@ def mode_index(df, img_ids, start, stop, params, dataset_mode_lst):
                img = cv2.imread(os.path.join(params["test"], img_id))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             df_img_id = df[df["img_file"] == img_id]
-            classes_id = df_img_id["class_id"].values.tolist()
+            classes_id = df_img_id["class_id"].values.astype(int).tolist()
             classes_id_unique = np.unique(np.array(classes_id))
             bboxes = df_img_id[["x_min", "y_min", "x_max", "y_max"]].values.tolist()
             st.write(f"**Image**: {img_id}")
             st.write(f"**Index**: {i + start}")
             st.write(f"**All bboxes**: {len(classes_id)}")
             st.write(f"**Number of unique classes**: {len(classes_id_unique)}")
-            img = draw_bbox(img, bboxes, [params["names"][i] for i in classes_id], params["names"], params["colors"], 2)
+            if -1e5 < classes_id[0] < 1e5 : # advoid the cases without annotations
+                img = draw_bbox(img, bboxes, [params["names"][i] for i in classes_id], params["names"], params["colors"], 2)
             st.image(img)
 
 def mode_file_name(df, img_file_name, params, dataset_mode_lst):
@@ -108,5 +112,159 @@ def mode_file_name(df, img_file_name, params, dataset_mode_lst):
     st.write(f"**Image**: {img_file_name}")
     st.write(f"**All bboxes**: {len(classes_id)}")
     st.write(f"**Number of unique classes**: {len(classes_id_unique)}")
-    img = draw_bbox(img, bboxes, [params["names"][i] for i in classes_id], params["names"], params["colors"], 2)
+    if -1e5 < classes_id[0] < 1e5 : # advoid the cases without annotations
+        img = draw_bbox(img, bboxes, [params["names"][i] for i in classes_id], params["names"], params["colors"], 2)
     st.image(img)
+
+def get_normalize(params, mode):
+    ''' 
+    Args: 
+        + params: (dict) Default Parameters, Loading from config yaml file.
+        + mode: (str) Dataset mode (train, val, test)    
+    '''
+    
+    # df must contain 5 columns (class_id, x_min, y_min, x_max, y_max, img_file)
+    if mode == "train":
+        df = pd.read_csv(params["train_annotation_csv"])
+    elif mode == "val":
+        df = pd.read_csv(params["val_annotation_csv"])
+    elif mode == "test":
+        df = pd.read_csv(params["test_annotation_csv"])
+    else:
+        print(f"Invalid mode")
+        return
+
+    img_ids = df["img_file"].values
+    for i, img_id in enumerate(img_ids):
+        height, width = cv2.imread(os.path.join(params[mode], img_id)).shape[:2]
+        if i == 0:
+            rows = np.array([width, height, width, height])
+        else:
+            row = np.array([width, height, width, height])
+            rows = np.vstack([rows, row])
+    
+def crop(img, img_annots):
+    classes_id, bboxes = rescale(img_annots, img)
+    bboxes = convert_xywh_to_xyxy(bboxes)
+    imgs_crop = []
+    for i, bbox in enumerate(bboxes):
+        img_content = img[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2]), :]
+        img_crop = {f"img" : img_content, "class_id" : classes_id[i], "bbox" : bbox}
+        imgs_crop.append(img_crop)
+    return imgs_crop
+
+def variance_of_laplacian(img):
+    # compute the Laplacian of the image and then return the focus
+    # measure, which is simply the variance of the Laplacian
+    return cv2.Laplacian(img, cv2.CV_64F).var()
+
+# https://docs.opencv.org/3.4/d3/dc1/tutorial_basic_linear_transform.html
+# https://github.com/albumentations-team/albumentations/issues/67
+def change_brightness(img, alpha, beta):
+    img_new = np.asarray(alpha*img + beta, dtype = np.uint8)   # cast pixel values to int
+    img_new[img_new>255] = 255
+    img_new[img_new<0] = 0
+    return img_new
+
+def increase_brightness(img, value=30):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
+    lim = 255 - value
+    v[v > lim] = 255
+    v[v <= lim] += value
+    final_hsv = cv2.merge((h, s, v)) 
+    return cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+
+def plot_multi_imgs(imgs, # 1 batchs contain multiple images
+                    cols = 2, size = 10, # size of figure
+                    is_rgb = True, title = None, cmap = "gray",
+                    img_size = None): # set img_size if you want (width, height)
+    rows = (len(imgs) // cols) + 1
+    fig = plt.figure(figsize = (size *  cols, size * rows))
+    for i , img in enumerate(imgs):
+        if img_size is not None:
+            img = cv2.resize(img, img_size)
+        fig.add_subplot(rows, cols, i + 1) # add subplot int the the figure
+        plt.imshow(img, cmap = cmap) # plot individual image
+    plt.suptitle(title)
+
+def bright_scorce_bbox(bbox_img):
+    # Convert color space to LAB format and extract L channel
+    L, A, B = cv2.split(cv2.cvtColor(bbox_img, cv2.COLOR_BGR2LAB))
+    # Normalize L channel by dividing all pixel values with maximum pixel value
+    L = L/255 
+    return np.mean(L)
+
+def detect_darkness(imgs_crop):
+    for img_crop in imgs_crop:
+        bright_score = bright_scorce_bbox(img_crop["img"])
+        if bright_score <= 0.3:
+            return True
+    return False
+
+def save_annotations(img_annotations, file_save, path):
+    pattern = re.compile(pattern =r"0.\d+")
+    if len(img_annotations.shape) ==  1:
+        img_annotations = np.expand_dims(img_annotations, axis = 0)
+    img_classes = img_annotations[:, 0].astype(np.int32)
+    with open(os.path.join(path, file_save), 'w') as output:
+        for i in range(len(img_classes)):
+            img_class = img_classes[i]
+            output.write(str(img_class) + " ")
+            img_annotation = str(img_annotations[i])
+            matches = pattern.finditer(img_annotation)
+            num_matches = len([_ for _ in pattern.finditer(img_annotation)])
+            assert num_matches == 4, f"Error with num_matches = {num_matches}"
+            for j, match in enumerate(matches):
+                if j == 3:
+                    output.write(str(match.group()) + "\n")
+                else:
+                    output.write(str(match.group()) + " ")
+
+def compute_area_xyxy(bbox):
+    x_min, y_min, x_max, y_max = bbox
+    return round((x_max - x_min) * (y_max - y_min), 2)
+
+def enhence_face(img, img_annots, sigma_s_detail=15, sigma_r_detail=0.15, 
+                 flag_preserving=1, sigma_s_preserving=30, sigma_r_preserving=0.4):
+    ''' source: https://learnopencv.com/non-photorealistic-rendering-using-opencv-python-c/#edgePreservingFilter
+    Args:
+        + img (ndarray): color image. 
+        + img_annots (ndarray): contain the class_id and bboxes (xywh).
+        + sigma_s_detail and sigma_s_preserving (float): range from 0 to 200. 
+          sigma_s (for Sigma_Spatial) that determines the amount of smoothing. 
+          A typical smoothing filter replaces the value of a pixel by the weighted sum of its neighbors. 
+          The bigger the neighborhood, the smoother the filtered image looks. 
+          The size of the neighborhood is directly proportional to the parameter sigma_s.
+          sigma_s_detail is used to cv2.detailEnhance() while sigma_s_preserving is used to cv2.edgePreservingFilter().
+        + sigma_r_detail, sigma_r_preserving (float): range from 0 to 1.
+          sigma_r (for sigma_range) controls the how dissimilar colors within the neighborhood will be averaged. 
+          A larger sigma_r results in large regions of constant color.
+          sigma_r_detail is used to cv2.detailEnhance() while sigma_r_preserving is used to cv2.edgePreservingFilter().
+        + flag_preserving (int): is used to cv2.edgePreservingFilter().
+          It takes value RECURS_FILTER ( Recursive Filtering ) = 1 and NORMCONV_FILTER ( Normalized Convolution ) = 2
+
+    Return:
+        enhence_faces_lst (list): list contains all img_faces after enhence.
+    '''
+
+    img_copy = img.copy()
+    imgs_crop = crop(img_copy, img_annots)
+    enhence_faces_lst = []
+    for i in range(len(imgs_crop)):
+        detail_face = cv2.detailEnhance(imgs_crop[i]["img"], sigma_s = sigma_s_detail, sigma_r = sigma_r_detail)
+        enhence_face = cv2.edgePreservingFilter(detail_face, flags = flag_preserving, sigma_s = sigma_s_preserving, sigma_r = sigma_r_preserving)
+        enhence_face_dct = {"img" : enhence_face, 
+                            "class_id" : imgs_crop[i]["class_id"],
+                            "bbox" : imgs_crop[i]["bbox"]}
+        enhence_faces_lst.append(enhence_face_dct)
+    return enhence_faces_lst
+
+def img_enhence_face(img, enhence_faces_lst):
+    img_copy = img.copy()
+    for i in range(len(enhence_faces_lst)):
+        bbox = enhence_faces_lst[i]["bbox"].astype(int)
+        img_copy[bbox[1]:bbox[3], bbox[0]:bbox[2], :] = enhence_faces_lst[i]["img"]
+    return img_copy
+
+    

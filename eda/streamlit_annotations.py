@@ -1,12 +1,10 @@
 import streamlit as st
 import pandas as pd
-import numpy as np 
 import yaml
 import os
 import sys
 sys.path.insert(1, "../src")
 from utils import filter_classes_id, mode_index, mode_file_name
-import cv2
 from pathlib import Path
 
 FILE_TRAIN_CONFIG = os.path.join("..", "config", "eda_cfg.yaml")

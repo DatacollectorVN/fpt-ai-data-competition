@@ -39,16 +39,17 @@ python auto_augmentation.py
 ```
 **NOTE**: Remember to change config correctly
 
+
 ## 5. Baseline:
-** Val:
+**Val**:
 
 ![Baselineval](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselineval.jpg)
 
-** Public_test:
+**Public_test**:
 
 ![Baselinetest](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselinetest.jpg)
 
-**For more details [DRIVE-CHUNG](https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1)**: https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1 
+**For more details [DRIVE-CHUNG](https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1)**
 
 ## 6. Train:
 

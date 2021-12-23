@@ -67,7 +67,7 @@ python auto_augmentation.py
 
 ![Baselinetest](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselinetest.jpg)
 
-**For more details [DRIVE-CHUNG](https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1)**: https://drive.google.com/drive/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1?usp=sharing
+**For more details [DRIVE-CHUNG](https://drive.google.com/drive/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1?usp=sharing)** 
 
 ## 6. Train:
 

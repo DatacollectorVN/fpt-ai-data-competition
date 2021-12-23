@@ -1,5 +1,3 @@
 dataset-datacomp/
 */*.ipynb
 **/__pycache__
-images/image-intermediary/
-images/bboxes/

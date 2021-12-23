@@ -27,6 +27,6 @@ def main(file_id, destination):
     download_file_from_google_drive(file_id, destination)
 
 if __name__ == '__main__':
-    file_id = '15AzoccXww7iX9aQ1RXOiV5Q6-SmfcfcM'
+    file_id = '1hYDLhAYLlYSmWontVqn2QrStiTd4xDwD'
     destination = './dataset.zip'
     main(file_id, destination)

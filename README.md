@@ -23,8 +23,21 @@ pip install -r requirements.txt
 ```
 
 ## 4. Download the standard and additional data after processing:
+Run to download raw dataset:
+```bash 
+bash download_data.sh
+```
 
-`bash download_data_standard_add.sh`
+## Data pre-processing:
+* Increase brightness
+```bash
+python eda/increase_brightness.py
+```
+* Enhence face of people
+```bash
+python eda/enhence_face.py
+```
+**NOTE**: Remember to change config correctly
 
 ## Data augmentation:
 * Mosaic | Flip | Rotate | Mixup
@@ -37,7 +50,7 @@ python src/{augmentation_name}_augmentation.py
 ```bash
 python auto_augmentation.py
 ```
-**NOTE**: Remember to change config correctly
+
 
 ## 5. Baseline:
 ** Val:
@@ -48,7 +61,8 @@ python auto_augmentation.py
 
 ![Baselinetest](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselinetest.jpg)
 
-**For more details [DRIVE-CHUNG](https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1)**: https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1 
+**For more details [DRIVE-CHUNG](https://drive.google.com/drive/u/0/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1)**: https://drive.google.com/drive/folders/1Gk1dFHnnu0QqpjsXakbxtkhyN8wvfLt1?usp=sharing
+
 
 ## 6. Train:
 
@@ -83,3 +97,5 @@ python detect.py --weights results/train/<version_name>/weights/best.pt --source
 
 ## 9. Result on leaderboard:
 ![LEADERBOARD](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/leaderboard.jpg)
+
+## 10. Result official: [Update soon] 

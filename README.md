@@ -52,12 +52,13 @@ python auto_augmentation.py
 ```
 
 
+
 ## 5. Baseline:
-** Val:
+**Val**:
 
 ![Baselineval](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselineval.jpg)
 
-** Public_test:
+**Public_test**:
 
 ![Baselinetest](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/baselinetest.jpg)
 

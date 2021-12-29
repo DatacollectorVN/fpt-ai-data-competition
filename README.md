@@ -103,4 +103,11 @@ python detect.py --weights results/train/<version_name>/weights/best.pt --source
 ## 9. Result on leaderboard:
 ![LEADERBOARD](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/leaderboard.jpg)
 
-## 10. Result official: [Update soon] 
+
+## 10. Result official:
+In the final result, our team finished 15th out of 394 participating teams. We are very happy with this result and will try to do better in the upcoming competitions. 
+
+![LEADERBOARD_OFFICIAL](https://github.com/DatacollectorVN/fpt-ai-data-competition/blob/vnk/images/leaderboard_official.jpg)
+
+## Try your best 🔥
+
